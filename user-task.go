@@ -107,7 +107,7 @@ type UserTaskGetListQuery struct {
 	// Restrict to tasks that belong to process instances with the given id.
 	ProcessInstanceId string `json:"processInstanceId,omitempty"`
 	// Restrict to tasks that belong to process instances with the given ids.
-	ProcessInstanceIdIn string `json:"processInstanceIdIn,omitempty"`
+	ProcessInstanceIdIn []string `json:"processInstanceIdIn,omitempty"`
 	// Restrict to tasks that belong to process instances with the given business key.
 	ProcessInstanceBusinessKey string `json:"processInstanceBusinessKey,omitempty"`
 	// Restrict to tasks that belong to process instances with one of the give business keys. The keys need to be in a comma-separated list.
