@@ -5,8 +5,8 @@ package processor
 
 import (
 	"fmt"
-	camundaclientgo "github.com/citilinkru/camunda-client-go/v3"
 	"github.com/stretchr/testify/assert"
+	camundaclientgo "github.com/wurenquyu/camunda-client-go/v3"
 	"os"
 	"testing"
 	"time"
