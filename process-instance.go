@@ -254,7 +254,7 @@ type ReqProcessInstanceVariables struct {
 	HistoricProcessInstanceQuery *ReqHistoryProcessInstanceQuery `json:"historicProcessInstanceQuery"`
 	// A JSON object containing variable key-value pairs the operation will set in the root scope of the process instances.
 	// Each key is a variable name and each value a JSON variable value object.
-	Variables *ReqProcessVariable `json:"variables"`
+	Variables map[string]*ReqProcessVariable `json:"variables"`
 }
 
 // ReqProcessInstanceActivateSuspend a JSON object with the following properties: (at least an empty JSON object {}
