@@ -1,6 +1,9 @@
 package camunda_client_go
 
-import "io/ioutil"
+import (
+	"fmt"
+	"io/ioutil"
+)
 
 type History struct {
 	client *Client
@@ -423,5 +426,196 @@ func (h *History) GetVariableInstanceListPost(query map[string]string, req ReqHi
 	}
 
 	err = h.client.readJsonResponse(res, &variableInstances)
+	return
+}
+
+type HistoryTaskInstanceQuery struct {
+	TaskId           string `json:"taskId,omitempty"`
+	TaskParentTaskId string `json:"taskParentTaskId,omitempty"`
+	// Restrict to tasks that belong to process instances with the given id.
+	ProcessInstanceId string `json:"processInstanceId,omitempty"`
+	// Restrict to tasks that belong to process instances with the given business key.
+	ProcessInstanceBusinessKey string `json:"processInstanceBusinessKey,omitempty"`
+	// Restrict to tasks that belong to process instances with one of the give business keys. The keys need to be in a comma-separated list.
+	ProcessInstanceBusinessKeyIn []string `json:"processInstanceBusinessKeyIn,omitempty"`
+	// Restrict to tasks that have a process instance business key that has the parameter value as a substring.
+	ProcessInstanceBusinessKeyLike string `json:"processInstanceBusinessKeyLike,omitempty"`
+	// Restrict to tasks that belong to a process definition with the given id.
+	ProcessDefinitionId string `json:"processDefinitionId,omitempty"`
+	// Restrict to tasks that belong to a process definition with the given key.
+	ProcessDefinitionKey string `json:"processDefinitionKey,omitempty"`
+	// Restrict to tasks that belong to a process definition with the given name.
+	ProcessDefinitionName string `json:"processDefinitionName,omitempty"`
+	// Restrict to tasks that belong to an execution with the given id.
+	ExecutionId string `json:"executionId,omitempty"`
+	// Restrict to tasks that belong to case instances with the given id.
+	CaseInstanceId string `json:"caseInstanceId,omitempty"`
+	// Restrict to tasks that belong to case instances with the given business key.
+	CaseInstanceBusinessKey string `json:"caseInstanceBusinessKey,omitempty"`
+	// Restrict to tasks that have a case instance business key that has the parameter value as a substring.
+	CaseInstanceBusinessKeyLike string `json:"caseInstanceBusinessKeyLike,omitempty"`
+	// Restrict to tasks that belong to a case definition with the given id.
+	CaseDefinitionId string `json:"caseDefinitionId,omitempty"`
+	// Restrict to tasks that belong to a case definition with the given key.
+	CaseDefinitionKey string `json:"caseDefinitionKey,omitempty"`
+	// Restrict to tasks that belong to a case definition with the given name.
+	CaseDefinitionName string `json:"caseDefinitionName,omitempty"`
+	// Restrict to tasks that belong to a case execution with the given id.
+	CaseExecutionId string `json:"caseExecutionId,omitempty"`
+	// Only include tasks which belong to one of the passed and comma-separated activity instance ids.
+	ActivityInstanceIdIn []string `json:"activityInstanceIdIn,omitempty"`
+	// Only include tasks which belong to one of the passed and comma-separated tenant ids.
+	TenantIdIn []string `json:"tenantIdIn,omitempty"`
+	// Only include tasks which belong to no tenant. Value may only be true, as false is the default behavior.
+	WithoutTenantId     string `json:"withoutTenantId,omitempty"`
+	TaskName            string `json:"taskName,omitempty"`
+	TaskNameLike        string `json:"taskNameLike,omitempty"`
+	TaskDescription     string `json:"taskDescription,omitempty"`
+	TaskDescriptionLike string `json:"taskDescriptionLike,omitempty"`
+	// Restrict to tasks that have the given key.
+	TaskDefinitionKey string `json:"taskDefinitionKey,omitempty"`
+	// Restrict to tasks that have one of the given keys. The keys need to be in a comma-separated list.
+	TaskDefinitionKeyIn []string `json:"taskDefinitionKeyIn,omitempty"`
+	// Restrict to tasks that have a key that has the parameter value as a substring.
+	TaskDefinitionKeyLike string `json:"taskDefinitionKeyLike,omitempty"`
+	TaskDeleteReason      string `json:"taskDeleteReason,omitempty"`
+	TaskDeleteReasonLike  string `json:"taskDeleteReasonLike,omitempty"`
+	TaskAssignee          string `json:"taskAssignee,omitempty"`
+	TaskAssigneeLike      string `json:"taskAssigneeLike,omitempty"`
+	TaskOwner             string `json:"taskOwner,omitempty"`
+	TaskOwnerLike         string `json:"taskOwnerLike,omitempty"`
+	TaskPriority          string `json:"taskPriority,omitempty"`
+	// If set to true, restricts the query to all tasks that are assigned.
+	Assigned bool `json:"assigned,omitempty"`
+	// If set to true, restricts the query to all tasks that are unassigned.
+	Unassigned               bool   `json:"unassigned,omitempty"`
+	Finished                 bool   `json:"finished,omitempty"`
+	Unfinished               bool   `json:"unfinished,omitempty"`
+	ProcessFinished          bool   `json:"processFinished,omitempty"`
+	ProcessUnfinished        bool   `json:"processUnfinished,omitempty"`
+	TaskDueDate              string `json:"taskDueDate,omitempty"`
+	TaskDueDateBefore        string `json:"taskDueDateBefore,omitempty"`
+	TaskDueDateAfter         string `json:"taskDueDateAfter,omitempty"`
+	WithoutTaskDueDate       bool   `json:"withoutTaskDueDate,omitempty"`
+	TaskFollowUpDate         string `json:"taskFollowUpDate,omitempty"`
+	TaskFollowUpDateBefore   string `json:"taskFollowUpDateBefore,omitempty"`
+	TaskFollowUpDateAfter    string `json:"taskFollowUpDateAfter"`
+	StartedBefore            string `json:"startedBefore,omitempty"`
+	StartedAfter             string `json:"startedAfter,omitempty"`
+	FinishedBefore           string `json:"finishedBefore,omitempty"`
+	FinishedAfter            string `json:"finishedAfter,omitempty"`
+	VariableNamesIgnoreCase  bool   `json:"variableNamesIgnoreCase,omitempty"`
+	VariableValuesIgnoreCase bool   `json:"variableValuesIgnoreCase,omitempty"`
+	TaskInvolvedUser         string `json:"taskInvolvedUser,omitempty"`
+	TaskInvolvedGroup        string `json:"taskInvolvedGroup,omitempty"`
+	TaskHadCandidateGroup    string `json:"taskHadCandidateGroup,omitempty"`
+	// Only include tasks which have a candidate group.Value may only be true, as false is the default behavior.
+	WithCandidateGroups bool `json:"withCandidateGroups,omitempty"`
+	// Only include tasks which have no candidate group.Value may only be true, as false is the default behavior.
+	WithoutCandidateGroups bool `json:"withoutCandidateGroups,omitempty"`
+	// Only include tasks that have variables with certain values.Variable filtering expressions are comma-separated and are structured as follows:
+	// A valid parameter value has the form key_operator_value.key is the variable name, operator is the comparison operator to be used and value the variable value.
+	// Note: Values are always treated as String objects on server side.
+	//
+	// Valid operator values are: eq - equal to;
+	// neq - not equal to;
+	// gt - greater than;
+	// gteq - greater than or equal to;
+	// lt - lower than;
+	// lteq - lower than or equal to;
+	// like.
+	// key and value may not contain underscore or comma characters.
+	TaskVariables []VariableFilterExpression `json:"taskVariables,omitempty"`
+	// Only include tasks that belong to process instances that have variables with certain values.Variable filtering expressions are comma-separated and are structured as follows:
+	// A valid parameter value has the form key_operator_value.key is the variable name, operator is the comparison operator to be used and value the variable value.
+	// Note: Values are always treated as String objects on server side.
+	//
+	// Valid operator values are: eq - equal to;
+	// neq - not equal to;
+	// gt - greater than;
+	// gteq - greater than or equal to;
+	// lt - lower than;
+	// lteq - lower than or equal to;
+	// like.
+	// key and value may not contain underscore or comma characters.
+	ProcessVariables []VariableFilterExpression `json:"processVariables,omitempty"`
+	// Sort the results lexicographically by a given criterion.Valid values are instanceId, caseInstanceId, dueDate, executionId, caseExecutionId, assignee, created, description, id, name, nameCaseInsensitive and priority.Must be used in conjunction with the sortOrder parameter.
+	SortBy string `json:"sortBy,omitempty"`
+	// Sort the results in a given order.Values may be asc for ascending order or desc for descending order.Must be used in conjunction with the sortBy parameter.
+	SortOrder string `json:"sortOrder,omitempty"`
+	// Pagination of results.Specifies the index of the first result to return.
+	FirstResult int64 `json:"firstResult,omitempty"`
+	// Pagination of results.Specifies the maximum number of results to return.Will return less results if there are no more results left.
+	MaxResults int64 `json:"maxResults,omitempty"`
+}
+
+type HistoryTaskInstanceResponse struct {
+	// The id of the task.
+	Id string `json:"id"`
+	// The tasks name.
+	Name string `json:"name"`
+	// The user assigned to this task.
+	Assignee string `json:"assignee"`
+	// The due date for the task.Format yyyy-MM-dd'T'HH:mm:ss.
+	Due string `json:"due"`
+	// The follow-up date for the task.Format yyyy-MM-dd'T'HH:mm:ss.
+	FollowUp           string `json:"followUp"`
+	ActivityInstanceId string `json:"activityInstanceId"`
+	// The task description.
+	Description string `json:"description"`
+	// The id of the execution the task belongs to.
+	ExecutionId string `json:"executionId"`
+	// The owner of the task.
+	Owner string `json:"owner"`
+	// The id of the parent task, if this task is a subtask.
+	ParentTaskId string `json:"parentTaskId"`
+	// The priority of the task.
+	Priority int64 `json:"priority"`
+	// The id of the process definition this task belongs to.
+	ProcessDefinitionId string `json:"processDefinitionId"`
+	// The id of the process instance this task belongs to.
+	ProcessInstanceId string `json:"processInstanceId"`
+	// The id of the case execution the task belongs to.
+	CaseExecutionId string `json:"caseExecutionId"`
+	// The id of the case definition the task belongs to.
+	CaseDefinitionId string `json:"caseDefinitionId"`
+	// The id of the case instance the task belongs to.
+	CaseInstanceId string `json:"caseInstanceId"`
+	// The task definition key.
+	TaskDefinitionKey string `json:"taskDefinitionKey"`
+	// If not null, the tenantId for the task.
+	TenantId         string `json:"tenantId"`
+	TaskDeleteReason string `json:"taskDeleteReason"`
+	// The time the instance was started. Default format* yyyy-MM-dd’T’HH:mm:ss.SSSZ.
+	StartTime string `json:"startTime"`
+	// The time the instance ended. Default format* yyyy-MM-dd’T’HH:mm:ss.SSSZ.
+	EndTime  string `json:"endTime"`
+	Duration int64  `json:"duration"`
+	// The time after which the instance should be removed by the History Cleanup job. Default format* yyyy-MM-dd’T’HH:mm:ss.SSSZ.
+	RemovalTime string `json:"removalTime"`
+	// The process instance id of the root process instance that initiated the process.
+	RootProcessInstanceId string `json:"rootProcessInstanceId"`
+}
+
+func (h *History) GetTaskList(query *HistoryTaskInstanceQuery) (historyTasks []*HistoryTaskInstanceResponse, err error) {
+	if query == nil {
+		query = &HistoryTaskInstanceQuery{}
+	}
+	queryParams := map[string]string{}
+
+	if query.MaxResults > 0 {
+		queryParams["maxResults"] = fmt.Sprintf("%d", query.MaxResults)
+	}
+
+	if query.FirstResult > 0 {
+		queryParams["firstResult"] = fmt.Sprintf("%d", query.FirstResult)
+	}
+
+	res, err := h.client.doPostJson("/history/task", queryParams, query)
+	if err != nil {
+		return
+	}
+
+	err = h.client.readJsonResponse(res, &historyTasks)
 	return
 }
