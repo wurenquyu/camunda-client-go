@@ -619,3 +619,26 @@ func (h *History) GetTaskList(query *HistoryTaskInstanceQuery) (historyTasks []*
 	err = h.client.readJsonResponse(res, &historyTasks)
 	return
 }
+
+func (h *History) GetTaskListCount(query *HistoryTaskInstanceQuery) (int64, error) {
+	if query == nil {
+		query = &HistoryTaskInstanceQuery{}
+	}
+
+	queryParams := map[string]string{}
+
+	res, err := h.client.doPostJson("/history/task/count", queryParams, query)
+	if err != nil {
+		return 0, err
+	}
+
+	resp := struct {
+		Count int64 `json:"count"`
+	}{}
+
+	if err := h.client.readJsonResponse(res, &resp); err != nil {
+		return 0, fmt.Errorf("can't read json response: %w", err)
+	}
+
+	return resp.Count, nil
+}
