@@ -440,3 +440,20 @@ func (t *userTaskApi) Complete(id string, query QueryUserTaskComplete) error {
 
 	return nil
 }
+
+type Assignee struct {
+	UserId string `json:"userId"`
+}
+
+func (t *userTaskApi) SetAssignee(id string, assignee string) error {
+	res, err := t.client.doPostJson("/task/"+id+"/assignee", map[string]string{}, Assignee{UserId: assignee})
+	if err != nil {
+		return fmt.Errorf("can't post json: %w", err)
+	}
+
+	if res != nil {
+		res.Body.Close()
+	}
+
+	return nil
+}
